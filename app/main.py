@@ -1,5 +1,7 @@
 import re
 from agents.agent import CSVAgent
+import os
+
 
 def extract_python_code(text):
     match = re.search(r"```python(.*?)```", text, re.DOTALL)
@@ -18,7 +20,7 @@ def run_generated_code(code):
 if __name__ == "__main__":
     csv_agent = CSVAgent()
     # file_path = "./data.csv"
-    file_path = "./support_tickets_data.csv"
+    file_path = os.path.join(os.getcwd(), "support_tickets_data.csv")
 
     # plot_options = ["histogram", "scatter plot", "line plot", "bar chart", "heatmap"]
     # print("📊 Available plot types:", ", ".join(plot_options))
@@ -32,7 +34,7 @@ if __name__ == "__main__":
     
     
     results = csv_agent.crew(file_path=file_path, chosen_plot="").kickoff()
-
+    print("\n🚀 Crew Results:\n", results)
     final_output = results.final_output if hasattr(results, "final_output") else str(results)
     code = extract_python_code(final_output)
     print("\n📄 Generated Python Code:\n", code)

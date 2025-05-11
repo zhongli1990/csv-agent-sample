@@ -2,7 +2,7 @@ from textwrap import dedent
 from crewai import Agent, LLM, Crew, Process, Task
 from crewai_tools import FileReadTool
 
-from constants import LLM_NAME, BASE_URL, TEMPERATURE
+from app.constants import LLM_NAME, BASE_URL, TEMPERATURE
 
 llm = LLM(
     model=LLM_NAME, 
@@ -87,7 +87,7 @@ class CSVAgent:
             """),
             context=[self.read_csv_task(file_path)],
             agent=self.analyst_agent(),
-            human_input=True
+            # human_input=True
         )
     
     def visualize_csv_task(self, file_path):
