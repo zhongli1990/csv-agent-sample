@@ -3,48 +3,66 @@ from typing import Union, Any
 from mcp.server.fastmcp import FastMCP
 from pandas import DataFrame
 import pandas as pd
-from pydantic import BaseModel
-from pydantic_core import core_schema
+import matplotlib.pyplot as plt
 
 mcp = FastMCP("CSV Server", host="127.0.0.1", port=8050)
 
-file_path = "C:\\Users\\Wriddhirup Dutta\\coding\\excel-agent\\app\\notebooks\\data.csv"
+@mcp.tool()
+def list_columns(file_path: str) -> Union[str, list]:
+    """
+        List the columns of the DataFrame
+    :param file_path:
+    :return: List of columns in the DataFrame
+    """
+    try:
+        data = pd.read_csv(file_path)
+        return data.columns.to_list()
+    except Exception as e:
+        return f"Error reading CSV file: {e}"
 
-df = pd.read_csv(file_path)
-
-
-class ModelWithDataFrame(BaseModel):
-    data: list[dict]
-
-    @classmethod
-    def __get_pydantic_core_schema__(
-            cls, _source_type: Any, _handler: Any
-    ) -> core_schema.CoreSchema:
-        return core_schema.json_or_python_schema(
-            json_schema=core_schema.list_schema(core_schema.dict_schema()),
-            python_schema=core_schema.is_instance_schema(pd.DataFrame)
-        )
+@mcp.tool()
+def describe(file_path: str) -> Union[str, DataFrame]:
+    """
+        Describe the DataFrame
+    :param file_path:
+    :return: Description of the DataFrame
+    """
+    try:
+        data = pd.read_csv(file_path)
+        return data.describe()
+    except Exception as e:
+        return f"Error reading CSV file: {e}"
 
 
 @mcp.tool()
-def list_columns() -> Union[str, list]:
-    """List the columns of the DataFrame"""
-    if df is not None:
-        return df.columns.to_list()
-    else:
-        return "No DataFrame loaded. Please read a CSV file first."
+def visualize(file_path: str, plot_type: str, plot_column: str) -> str:
+    """
+        Visualize the DataFrame with matplotlib
+    :param file_path:
+    :param plot_type: Type of plot to create (e.g., 'line', 'bar', 'scatter')
+    :param plot_column: Column to plot
+    :return: Plot of the DataFrame
+    """
 
+    try:
+        data = pd.read_csv(file_path)
+        if plot_type == "line":
+            plt.plot(data[plot_column])
+        elif plot_type == "bar":
+            plt.bar(data.index, data[plot_column])
+        elif plot_type == "scatter":
+            plt.scatter(data.index, data[plot_column])
+        else:
+            return "Invalid plot type. Use 'line', 'bar', or 'scatter'."
 
-@mcp.resource(f"file:///{file_path}", mime_type="text/csv")
-def get_df() -> DataFrame:
-    """Get the DataFrame"""
-    if df is not None:
-        return df
-    else:
-        return "No DataFrame loaded. Please read a CSV file first."
-
+        plt.xlabel("Index")
+        plt.ylabel(plot_column)
+        plt.title(f"{plot_type.capitalize()} Plot of {plot_column}")
+        plt.show()
+        return "Plot displayed successfully."
+    except Exception as e:
+        return f"Error reading CSV file: {e}"
 
 # Run the server
 if __name__ == "__main__":
-    print("df: ", df)
     mcp.run(transport="sse")
