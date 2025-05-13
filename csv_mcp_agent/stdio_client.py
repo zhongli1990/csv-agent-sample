@@ -11,7 +11,7 @@ model = ChatOllama(model="llama3.2")
 
 server_params = StdioServerParameters(
     command="python",
-    args=[os.path.join(os.path.dirname(__file__), "csv_server.py")]
+    args=[os.path.join(os.path.dirname(__file__), "server.py")]
 )
 
 async def main():
