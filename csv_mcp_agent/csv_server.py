@@ -5,8 +5,8 @@ from pandas import DataFrame
 import pandas as pd
 import matplotlib.pyplot as plt
 
-mcp = FastMCP("CSV Server", host="127.0.0.1", port=8050)
-
+# mcp = FastMCP("CSV Server SSE", host="127.0.0.1", port=8050)
+mcp = FastMCP("CSV Server Stdio")
 @mcp.tool()
 def list_columns(file_path: str) -> Union[str, list]:
     """
@@ -65,4 +65,4 @@ def visualize(file_path: str, plot_type: str, plot_column: str) -> str:
 
 # Run the server
 if __name__ == "__main__":
-    mcp.run(transport="sse")
+    mcp.run(transport="stdio")
