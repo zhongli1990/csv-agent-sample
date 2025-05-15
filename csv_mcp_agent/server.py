@@ -5,7 +5,7 @@ from pandas import DataFrame
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# mcp = FastMCP("CSV Server SSE", host="127.0.0.1", port=8050)
+# csv_mcp = FastMCP("CSV Server SSE", host="127.0.0.1", port=8050)
 mcp = FastMCP("CSV Server Stdio")
 @mcp.tool()
 def list_columns(file_path: str) -> Union[str, list]:

@@ -5,10 +5,14 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.mcp_module.client.stdio_client import run_agent
-from app.utils.logger import logger
 
-
+async def main():
+    print("Starting CSV MCP Client...")
+    while True:
+        command = input("\nWhat do you want to do with the CSV? (type 'exit' to quit)\n> ")
+        if command.lower() == "exit":
+            break
+        await run_agent(command)
 
 if __name__ == "__main__":
-    logger.info("Starting CSV MCP Client...")
-    asyncio.run(run_agent())
+    asyncio.run(main())

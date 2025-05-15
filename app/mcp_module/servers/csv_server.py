@@ -1,15 +1,27 @@
+import os.path
 from typing import Union
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP, Context
 from pandas import DataFrame
 import pandas as pd
-import matplotlib.pyplot as plt
 
-# from app.utils.logger import logger
+mcp = FastMCP("CSV Server Stdio")
 
-csv_mcp = FastMCP("CSV Server Stdio")
+@mcp.tool()
+async def read_csv(file_path: str) -> Union[str, DataFrame]:
+    """
+        Read a CSV file and return the DataFrame
+    :param file_path:
+    :return: DataFrame
+    """
+    try:
+        data = pd.read_csv(file_path)
+        return data
+    except Exception as e:
+        print("Error reading CSV file: %s", e)
+        return f"Error reading CSV file: {e}"
 
-@csv_mcp.tool()
+@mcp.tool()
 def list_columns(file_path: str) -> Union[str, list]:
     """
         List the columns of the DataFrame
@@ -23,7 +35,7 @@ def list_columns(file_path: str) -> Union[str, list]:
         print("Error listing columns in CSV file: %s", e)
         return f"Error reading CSV file: {e}"
 
-@csv_mcp.tool()
+@mcp.tool()
 def describe(file_path: str) -> Union[str, DataFrame]:
     """
         Describe the DataFrame
@@ -37,38 +49,44 @@ def describe(file_path: str) -> Union[str, DataFrame]:
         print("Error describing CSV file: %s", e)
         return f"Error reading CSV file: {e}"
 
-
-@csv_mcp.tool()
-def visualize(file_path: str, plot_type: str, plot_column: str) -> str:
+@mcp.prompt(name="visualize_csv")
+def visualize_csv():
     """
-        Visualize the DataFrame with matplotlib
-    :param file_path:
-    :param plot_type: Type of plot to create (e.g., 'line', 'bar', 'scatter')
-    :param plot_column: Column to plot
-    :return: Plot of the DataFrame
+        Visualize the DataFrame with matplotlib based on the plot type specified
+        Your goal is to generate Python scripts that visualize data using matplotlib. Follow these rules:
+        The needed libraries are already part of the running environment, so you don't need to install them.
+
+        1. Always import the necessary libraries at the top:
+            ```python
+            import matplotlib.pyplot as plt
+            import pandas as pd
+            ```
+
+        2. Use `plt.figure()` if multiple plots or custom sizing is needed.
+
+        3. Label axes and add titles if the data allows:
+            ```python
+            plt.title("...")
+            plt.xlabel("...")
+            plt.ylabel("...")
+            ```
+
+        4. Use appropriate chart types:
+            - Line plot: `plt.plot(...)`
+            - Bar chart: `plt.bar(...)`
+            - Scatter: `plt.scatter(...)`
+            - Histogram: `plt.hist(...)`
+            - Pie chart: `plt.pie(...)`
+
+        5. Always include `plt.tight_layout()` before `plt.show()`.
+
+        6. Do not output explanation or markdown — only raw Python code.
+
+        7. If data is not provided, mock it with reasonable placeholder values using lists.
     """
+    pass
 
-    try:
-        data = pd.read_csv(file_path)
-        print("data: ", data)
-        if plot_type == "line":
-            plt.plot(data[plot_column])
-        elif plot_type == "bar":
-            plt.bar(data.index, data[plot_column])
-        elif plot_type == "scatter":
-            plt.scatter(data.index, data[plot_column])
-        else:
-            return "Invalid plot type. Use 'line', 'bar', or 'scatter'."
-
-        plt.xlabel("Index")
-        plt.ylabel(plot_column)
-        plt.title(f"{plot_type.capitalize()} Plot of {plot_column}")
-        plt.show()
-        return "Plot displayed successfully."
-    except Exception as e:
-        print("Error visualizing CSV file: %s", e)
-        return f"Error reading CSV file: {e}"
 
 # Run the server
 if __name__ == "__main__":
-    csv_mcp.run(transport="stdio")
+    mcp.run(transport="stdio")
