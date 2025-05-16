@@ -3,6 +3,9 @@
 ## About the Agent
 The CSV agent in this project acts as a Data Analyst that can read, describe and visualize based on the user input. Its a conversational agent that can store the older messages in its memory.
 
+<img width="716" alt="image" src="https://github.com/user-attachments/assets/446240a1-e6bf-4574-b87e-d15cdbd80090" />
+
+
 ## Prerequisites for the setup:
 - Install Ollama - https://ollama.com/download
 - Install Python 3.12 - https://www.python.org/downloads/release/python-3120/
