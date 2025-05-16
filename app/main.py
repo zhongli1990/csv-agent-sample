@@ -6,13 +6,18 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.mcp_module.client.stdio_client import run_agent
 
-async def main():
-    print("Starting CSV MCP Client...")
-    while True:
-        command = input("\nWhat do you want to do with the CSV? (type 'exit' to quit)\n> ")
-        if command.lower() == "exit":
-            break
-        await run_agent(command)
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    while True:
+        try:
+            command = input("Enter your command for the CSV Agent (type 'exit' to exit the agent): \n> ")
+            if command.lower() == "exit":
+                print("Exiting CSV agent...")
+                break
+            result = loop.run_until_complete(run_agent(command))
+            print(result)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            break
