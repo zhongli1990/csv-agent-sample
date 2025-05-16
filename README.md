@@ -1,6 +1,6 @@
 # CSV Agent
 
-Check this out in ![Medium Article](https://medium.com/@wriddhirupd/csv-agent-using-mcp-with-langgraph-and-llama3-2-26652717db31)
+Check this out in [Medium Article](https://medium.com/@wriddhirupd/csv-agent-using-mcp-with-langgraph-and-llama3-2-26652717db31)
 
 ## About the Agent
 The CSV agent in this project acts as a Data Analyst that can read, describe and visualize based on the user input. Its a conversational agent that can store the older messages in its memory.
