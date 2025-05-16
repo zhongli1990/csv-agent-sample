@@ -102,6 +102,6 @@ uv run app/main.py
     Overall, the data appears to be diverse and representative of different aspects of an individual's life. However, without more context, it is difficult to draw any further conclusions about the specific characteristics       or behaviors represented in the dataset.
     None
     Enter your command for the CSV Agent (type 'exit' to exit the agent): 
-  >
+    >
 ```
 
