@@ -36,19 +36,51 @@ def extract_python_code(text):
     match = re.search(r"```python(.*?)```", text, re.DOTALL)
     return match.group(1).strip() if match else None
 
-create_resource = False
+async def get_intent_of_user_ask(command: str) -> str:
+    """
+    Determines the intent of the user's command.
+    :param command: The command string from the user.
+    :return: A string indicating the intent.
+    """
+    system_prompt = """
+
+    You are a CSV file processing assistant. Your task is to determine the intent of the user's command.
+    If the command is related to CSV file analysis, return "describe".
+    If the command is related to CSV file visualization, return "visualize".
+    If the command is related to CSV file preview, return "preview".
+    """
+
+    # Create a prompt for the model
+    prompt = f"{system_prompt}\nUser command: {command}\nIntent:"
+    # Get the model's response
+    response = await model.ainvoke(prompt)
+    print(f"Intent: {response.text()}")
+    return response.text().lower()
 
 async def run_agent(command: str = ""):
+    intent = await get_intent_of_user_ask(command)
     async with MultiServerMCPClient(
         {
             "csv_server": {
                 "command": "python",
-                "args": [os.path.join(os.getcwd(), "mcp_module", "servers", "csv_server.py")],
+                "args": [os.path.join(os.getcwd(), "app", "mcp_module", "servers", "csv_server.py")],
                 "transport": "stdio",
             }
         }
     ) as session:
         tools = session.get_tools()
+
+        prompt: str = ""
+        if "visualize" in intent:
+            visualize_prompt = await session.get_prompt(
+                server_name="csv_server",
+                prompt_name="visualize_csv",
+                arguments={"input": command},
+            )
+            prompt = visualize_prompt[0].content if visualize_prompt else ""
+
+        print(f"Prompt: {prompt}")
+        structured_prompt = {"messages": prompt if prompt else command}
         agent = create_react_agent(
             model=model,
             tools=tools,
@@ -57,9 +89,7 @@ async def run_agent(command: str = ""):
             checkpointer=checkpointer,
         )
         agent_response = await agent.ainvoke(
-            {"messages": [
-                {"role": "user", "content": f'{command}'},
-            ]},
+            input=structured_prompt,
             config={"configurable": {"thread_id": uuid4()}},
         )
         agent_message = agent_response["messages"][-1].content
