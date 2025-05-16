@@ -9,6 +9,11 @@ The CSV agent in this project acts as a Data Analyst that can read, describe and
 
 For this agent, we are using `Llama3.2:latest` from Ollama and connecting it through LangChain library.
 
+## Install dependencies:
+```
+pip install -r requirements.txt
+```
+
 ## Run:
 ```
 python app/main.py
