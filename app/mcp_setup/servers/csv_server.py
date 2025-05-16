@@ -50,41 +50,22 @@ def describe(file_path: str) -> Union[str, DataFrame]:
         return f"Error reading CSV file: {e}"
 
 @mcp.prompt(name="visualize_csv")
-def visualize_csv():
-    """
-        Visualize the DataFrame with matplotlib based on the plot type specified
-        Your goal is to generate Python scripts that visualize data using matplotlib. Follow these rules:
+def visualize_csv(input: str) -> str:
+    return f"""
+       **System**: You are a data visualization assistant. Your task is to generate Python scripts wrapped in ```python...``` that visualize data using matplotlib and pandas.
+
+        Visualize the csv file with matplotlib based on the plot type specified.
+        Load the csv file from the filepath specified in the user message and use the data to create a plot.
         The needed libraries are already part of the running environment, so you don't need to install them.
 
-        1. Always import the necessary libraries at the top:
+        Always import the necessary libraries at the top:
             ```python
             import matplotlib.pyplot as plt
             import pandas as pd
             ```
 
-        2. Use `plt.figure()` if multiple plots or custom sizing is needed.
-
-        3. Label axes and add titles if the data allows:
-            ```python
-            plt.title("...")
-            plt.xlabel("...")
-            plt.ylabel("...")
-            ```
-
-        4. Use appropriate chart types:
-            - Line plot: `plt.plot(...)`
-            - Bar chart: `plt.bar(...)`
-            - Scatter: `plt.scatter(...)`
-            - Histogram: `plt.hist(...)`
-            - Pie chart: `plt.pie(...)`
-
-        5. Always include `plt.tight_layout()` before `plt.show()`.
-
-        6. Do not output explanation or markdown — only raw Python code.
-
-        7. If data is not provided, mock it with reasonable placeholder values using lists.
+        **User**: {input}
     """
-    pass
 
 @mcp.tool()
 def filter_csv(file_path: str, column: str, value: str) -> Union[str, DataFrame]:
@@ -103,7 +84,7 @@ def filter_csv(file_path: str, column: str, value: str) -> Union[str, DataFrame]
         print("Error filtering CSV file: %s", e)
         return f"Error reading CSV file: {e}"
 
-@mcp.tool()
+# @mcp.tool()
 def write_to_csv(file_path: str, row_data: dict) -> Union[str, DataFrame]:
     """
         Add a new row to the DataFrame and save it to a new CSV file
