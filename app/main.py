@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.mcp_module.client.stdio_client import run_agent
+from app.mcp_setup.client.stdio_client import run_agent
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)

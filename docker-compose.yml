@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+      - ./data:/data
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+
+  csv-agent:
+    build: .
+    container_name: csv-agent
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    volumes:
+      - ./:/app  # Map the entire project directory for live code and data
+      - ./data:/data  # Map host ./data to /data in csv-agent for shared access
+    working_dir: /app
+    command: ["./start-agent.sh"]
+
+volumes:
+  ollama-data: 

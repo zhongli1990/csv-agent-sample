@@ -7,8 +7,41 @@ The CSV agent in this project acts as a Data Analyst that can read, describe and
 
 <img width="716" alt="image" src="https://github.com/user-attachments/assets/446240a1-e6bf-4574-b87e-d15cdbd80090" />
 
+---
 
-## Prerequisites for the setup:
+## Dockerized Setup (Recommended)
+
+### Prerequisites
+- [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/)
+
+### 1. Build and Start Services
+
+```sh
+docker-compose up --build
+```
+This will start two containers:
+- `ollama`: The LLM server (Ollama)
+- `csv-agent`: The Python CSV agent app
+
+### 2. Pull the Llama3.2 Model in Ollama
+Before running the agent, you need to pull the model inside the Ollama container:
+
+```sh
+docker exec -it ollama ollama pull llama3.2
+```
+
+### 3. Run the Agent
+Once the model is pulled, you can interact with the agent:
+
+```sh
+docker exec -it csv-agent python app/main.py
+```
+
+You can now enter your commands as usual.
+
+---
+
+## Prerequisites for the setup (Manual/Local):
 - Install Ollama - https://ollama.com/download
 - Install Python 3.12 - https://www.python.org/downloads/release/python-3120/
 
@@ -32,86 +65,113 @@ uv run app/main.py
 
 1. User ask: For /Users/{user}/Downloads/excel-agent-main/data.csv draw a line chart of income
 
-    ```bash
-    % uv run app/main.py
-    Enter your command for the CSV Agent (type 'exit' to exit the agent): 
-    > For /Users/{user}/Downloads/excel-agent-main/data.csv draw a line chart of income
-    Intent: Based on the user's command, I would determine that the intent is "visualize". The mention of drawing a line chart and referencing a specific CSV file suggests that the user wants to visualize data from the CSV file.
-    [05/16/25 14:41:42] INFO     Processing request of type ListToolsRequest                                                                                                                                     server.py:545
-                        INFO     Processing request of type GetPromptRequest                                                                                                                                     server.py:545
-    Prompt: 
-           **System**: You are a data visualization assistant. Your task is to generate Python scripts wrapped in ```python...``` that visualize data using matplotlib and pandas.
-    
-            Visualize the csv file with matplotlib based on the plot type specified.
-            Load the csv file from the filepath specified in the user message and use the data to create a plot.
-            The needed libraries are already part of the running environment, so you don't need to install them.
-    
-            Always import the necessary libraries at the top:
-                ```python
-                import matplotlib.pyplot as plt
-                import pandas as pd
-                ```
-    
-            **User**: For /Users/{user}/Downloads/excel-agent-main/data.csv draw a line chart of income
-        
-    [05/16/25 14:41:44] INFO     Processing request of type CallToolRequest                                                                                                                                      server.py:545
-    Extracted Python code... 
-     import matplotlib.pyplot as plt
-    import pandas as pd
-    
-    # Load the csv file from the filepath specified in the user message
-    df = pd.read_csv('/Users/{user}/Downloads/excel-agent-main/data.csv')
-    
-    # Filter the data for 'income' column
-    filtered_df = df[df['income'] != '']
-    
-    # Create a line chart of income
-    plt.figure(figsize=(10,6))
-    plt.plot(filtered_df['income'], marker='o')
-    plt.title('Line Chart of Income')
-    plt.xlabel('Income')
-    plt.ylabel('Value')
-    plt.show()
-    agent_message:  ```python
-    import matplotlib.pyplot as plt
-    import pandas as pd
-    
-    # Load the csv file from the filepath specified in the user message
-    df = pd.read_csv('/Users/{user}/Downloads/excel-agent-main/data.csv')
-    
-    # Filter the data for 'income' column
-    filtered_df = df[df['income'] != '']
-    
-    # Create a line chart of income
-    plt.figure(figsize=(10,6))
-    plt.plot(filtered_df['income'], marker='o')
-    plt.title('Line Chart of Income')
-    plt.xlabel('Income')
-    plt.ylabel('Value')
-    plt.show()
-    ```
-    ![image](https://github.com/user-attachments/assets/e0994a98-db1f-4861-9b1f-620b8ae52c75)
+---
 
-2. User ask: Give some insights on /Users/{user}/Downloads/excel-agent-main/data.csv
+## Notes
+- The Ollama service runs on port 11434 and is required for the agent to function.
+- The first time you run, pulling the model may take several minutes.
+- Data and models are persisted in the `ollama-data` Docker volume.
 
-   ```
-    Enter your command for the CSV Agent (type 'exit' to exit the agent): 
-    > Give some insights on /Users/{user}/Downloads/excel-agent-main/data.csv
-    Intent: Based on the user's command, I would determine that the intent is "describe". The mention of analyzing a specific CSV file suggests that the user wants to gain insights into its contents.
-    [05/16/25 14:45:42] INFO     Processing request of type ListToolsRequest                                                                                                                                     server.py:545
-    Prompt: 
-    [05/16/25 14:45:43] INFO     Processing request of type CallToolRequest                                                                                                                                      server.py:545
-    agent_message:  The data.csv file contains information about three different variables: age, income, and score.
-    
-    Here are some key insights from the data:
-    
-    1. **Age Distribution**: The ages range from 20 to 60, with a mean of 39.94 years old. This suggests that the dataset is likely representing adults or young adults.
-    2. **Income Range**: The incomes vary widely, ranging from $41,874 to $117,919. The mean income is approximately $77,847.
-    3. **Score Distribution**: The scores range from 62 to 99, with a mean of 81.58 and a standard deviation of 9.98. This suggests that the scores are likely representing some kind of assessment or evaluation.
-    
-    Overall, the data appears to be diverse and representative of different aspects of an individual's life. However, without more context, it is difficult to draw any further conclusions about the specific characteristics       or behaviors represented in the dataset.
-    None
-    Enter your command for the CSV Agent (type 'exit' to exit the agent): 
-    >
-   ```
+---
+
+## Running the Project (Step-by-Step)
+
+### 1. Start Everything with Docker Compose
+
+From your project root, run:
+
+```sh
+docker-compose up --build
+```
+- This will build the csv-agent image, start the Ollama service, and launch your agent.
+
+### 2. **Manually Pull the Model in the Ollama Container**
+Before the agent can use the model, you must pull it in the Ollama container:
+
+```sh
+docker exec -it ollama ollama pull llama3.2
+```
+- This is a one-time step per model/version. You only need to do this again if you want to use a new model or update an existing one.
+
+### 3. Interact with the Agent
+- The agent will start automatically and prompt you for input in the logs as soon as the model is available.
+- To interact directly, you can attach to the running container:
+  ```sh
+  docker attach csv-agent
+  ```
+  or, if you want a new shell:
+  ```sh
+  docker exec -it csv-agent /bin/bash
+  python app/main.py
+  ```
+
+### 4. Monitor Logs
+To see the output and any prompts:
+```sh
+docker-compose logs -f csv-agent
+```
+
+### 5. Switch Models Later
+- Stop the stack: `docker-compose down`
+- Uncomment the desired model in `app/mcp_setup/client/stdio_client.py` (see model options in the code comments)
+- Pull the new model in the Ollama container, e.g.:
+  ```sh
+  docker exec -it ollama ollama pull qwen3:8b
+  ```
+- Restart: `docker-compose up --build`
+
+#### Example Model Options (in code):
+```python
+# model = ChatOllama(model="llama3.2", temperature=0)  # Llama 3.2 8B (default)
+# model = ChatOllama(model="qwen3:8b", temperature=0)  # Qwen3 8B
+# model = ChatOllama(model="deepseek-coder:6.7b-instruct", temperature=0)  # DeepSeek Coder 6.7B
+# model = ChatOllama(model="stablelm2:12b", temperature=0)  # StableLM2 12B
+```
+
+---
+
+## Comprehensive Quickstart: Build, Start, and Run
+
+### 1. Build Everything (No Cache)
+```sh
+docker-compose build --no-cache
+```
+
+### 2. Start Ollama Service in the Background
+```sh
+docker-compose up -d ollama
+```
+
+### 3. Pull the Model in the Ollama Container
+```sh
+docker exec -it ollama ollama pull llama3.2
+```
+
+### 4. Run the Agent Interactively
+```sh
+docker-compose run --rm csv-agent
+```
+- This will give you an interactive prompt for the agent.
+- You can run this command as many times as you want; the Ollama service will stay running in the background.
+
+### 5. (Optional) Monitor Logs
+```sh
+docker-compose logs -f ollama
+```
+
+### 6. (Optional) Stop All Services
+```sh
+docker-compose down
+```
+
+---
+
+**Summary:**
+- Build with `docker-compose build --no-cache`
+- Start Ollama: `docker-compose up -d ollama`
+- Pull model: `docker exec -it ollama ollama pull llama3.2`
+- Run agent: `docker-compose run --rm csv-agent`
+- Stop all: `docker-compose down`
+
+---
 

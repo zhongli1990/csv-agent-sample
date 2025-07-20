@@ -13,6 +13,11 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt.chat_agent_executor import AgentState
 from langmem.short_term import SummarizationNode
 
+# Model selection (uncomment to switch models)
+# model = ChatOllama(model="llama3.2", temperature=0)  # Llama 3.2 8B (default)
+# model = ChatOllama(model="qwen3:8b", temperature=0)  # Qwen3 8B
+# model = ChatOllama(model="deepseek-coder:6.7b-instruct", temperature=0)  # DeepSeek Coder 6.7B
+# model = ChatOllama(model="stablelm2:12b", temperature=0)  # StableLM2 12B
 model = ChatOllama(model="llama3.2", temperature=0)
 
 summarization_node = SummarizationNode(
@@ -63,7 +68,7 @@ async def run_agent(command: str = ""):
         {
             "csv_server": {
                 "command": "python",
-                "args": [os.path.join(os.getcwd(), "app", "mcp_module", "servers", "csv_server.py")],
+                "args": [os.path.join(os.getcwd(), "app", "mcp_setup", "servers", "csv_server.py")],
                 "transport": "stdio",
             }
         }
@@ -98,7 +103,8 @@ async def run_agent(command: str = ""):
         if python_code:
             try:
                 print("Extracted Python code... \n", python_code)
-                exec(python_code)
+                # exec(python_code)
+                exec(python_code, globals(), globals())
             except Exception as e:
                 print(traceback.print_exc())
                 print(f"Error executing extracted Python code: {e}")
